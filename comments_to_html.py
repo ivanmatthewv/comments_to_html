@@ -6,17 +6,20 @@ from jinja2 import Template
 
 
 class Comment:
-    def __init__(self, name, sex=None, time=None, like=0, content=None, location=None, uid=None):
+    def __init__(self, id=None, name=None, sex=None, time=None, like=0, dislike=0, content=None, location=None, uid=None, reply_to=None):
+        self.id = id
         self.name = name
         self.sex = sex
         self.time = time
         self.like = like
+        self.dislike = dislike
         self.content = content
         self.location = location
         self.uid = uid
+        self.reply_to = reply_to
 
 class RootComment:
-    def __init__(self, id, comment, child_comments, score):
+    def __init__(self, id=None, comment=None, child_comments=None, score=None):
         self.id = id
         self.comment = comment
         self.child_comments = child_comments
@@ -81,8 +84,11 @@ html_template = """
             {% if comment.location != None -%}
                IP属地: {{ comment.location }}  
             {% endif -%}
-            {% if comment.like != None -%}
+            {% if comment.like != None and comment.like > 0 -%}
                👍 {{ comment.like }}  
+            {% endif -%}
+            {% if comment.dislike != None and comment.dislike > 0 -%}
+               👎🏼 {{ comment.dislike }}  
             {% endif -%}
             {% if comment.sex != None -%}
                性别: {{ comment.sex }}  
@@ -106,8 +112,11 @@ html_template = """
                                     {% if child_comment.location != None -%}
                                        IP属地: {{ child_comment.location }}  
                                     {% endif -%}
-                                    {% if child_comment.like != None -%}
-                                       👍 {{ child_comment.like }}  
+                                    {% if child_comment.like != None and child_comment.like > 0 -%}
+                                      👍 {{ child_comment.like }}  
+                                    {% endif -%}
+                                    {% if child_comment.dislike != None and child_comment.dislike > 0 -%}
+                                      👎🏼 {{ child_comment.dislike }}  
                                     {% endif -%}
                                     {% if child_comment.sex != None -%}
                                        性别: {{ child_comment.sex }}  

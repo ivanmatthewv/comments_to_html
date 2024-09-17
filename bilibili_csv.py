@@ -7,6 +7,7 @@ import csv
 import operator
 
 from comments_to_html import Comment, RootComment, root_comments_to_html
+from util import calc_root_comment_score
 
 
 class CsvRow:
@@ -54,9 +55,8 @@ def comments_to_root_comments(comments):
             child_comments = None
             idx = idx + 1
             
-        score = comment.like + sum_list(child_comments, 'like', 0)
-        
-        root_comment = RootComment(cnt, comment, child_comments, score)
+        root_comment = RootComment(cnt, comment, child_comments)
+        root_comment.score = calc_root_comment_score(root_comment)
         root_comments.append(root_comment)
         
         if idx >= len(comments):
@@ -64,12 +64,7 @@ def comments_to_root_comments(comments):
     
     return sorted(root_comments, key=operator.attrgetter('score'), reverse=True)
 
-        
-def sum_list(objs, prop, default=0):
-    if not objs:
-        return default
-    return sum(getattr(obj, prop) for obj in objs)
-    
+
     
 def main():
     f_path = 'test1_3.csv'
