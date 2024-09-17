@@ -64,15 +64,31 @@ def root_data_to_root_comment(data):
 
 def data_to_comment(data):
     author = data['author']
-    
-    # ip
+    comment = Comment(
+        id=data.get('id'),
+        name=author.get('name'),
+        sex=gender_to_sex(author.get('gender')),
+        content=process_reply_at(data),
+        time=timestamp_to_str(data.get('created_time')),
+        like=int(data.get('like_count')),
+        dislike=int(data.get('dislike_count')),
+        location=process_ip(data),
+        uid=author.get('id'),
+    )
+    return comment
+
+# ip
+def process_ip(data):
+    ip = None
     comment_tag = data.get('comment_tag')
     if comment_tag:
         ip_tag = next((d for d in comment_tag if d.get('type') == 'ip_info'), None)
         if ip_tag:
             ip = ip_tag.get('text')
-    
-    # @
+    return ip
+
+# @
+def process_reply_at(data):
     content = data.get('content')
     reply_comment_id = data.get('reply_comment_id')
     reply_root_comment_id = data.get('reply_root_comment_id')
@@ -83,20 +99,7 @@ def data_to_comment(data):
         else:
             reply_to = '[内容已删除]'
         content = f'回复 @{reply_to}: {content}'
-        
-    comment = Comment(
-        id=data.get('id'),
-        name=author.get('name'),
-        sex=gender_to_sex(author.get('gender')),
-        content=content,
-        time=timestamp_to_str(data.get('created_time')),
-        like=int(data.get('like_count')),
-        dislike=int(data.get('dislike_count')),
-        location=ip,
-        uid=author.get('id'),
-    )
-    return comment
-
+    return content
 
 def gender_to_sex(gender):
     if gender == 2:
