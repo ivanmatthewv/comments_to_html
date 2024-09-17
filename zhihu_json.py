@@ -4,7 +4,7 @@
 js修改:
 修改@match为https://www.zhihu.com/*
 修改newFunction值为("https://www.zhihu.com/api/v4/comment_v5/*");
-保存的数据有问题时可以把设置取值方法GM_setValue(response.url, jsonString);和keys = GM_listValues();...用全局对象如var data = {}替换
+保存的数据有问题时可以把设值取值方法GM_setValue(response.url, jsonString);和keys = GM_listValues();...用全局对象如var data = {}替换
 """
 
 import json
