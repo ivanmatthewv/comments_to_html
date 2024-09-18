@@ -19,18 +19,18 @@ from comments_to_html import Comment, RootComment, root_comments_to_html
 from util import timestamp_to_str, distinct_list, group_list
 
 
-def json_to_root_comments(f_path, out_path):
+def json_to_root_comments(f_path, out_path, url=None, title='在线页面'):
     with open(f_path, 'r') as f:
         data = json.load(f)
         
     root_datas = []
     child_datas = []
     
-    for url, data in data.items():
-        if url.startswith('https://www-hj.douyin.com/aweme/v1/web/comment/list/?'):
+    for data_url, data in data.items():
+        if data_url.startswith('https://www-hj.douyin.com/aweme/v1/web/comment/list/?'):
             root_datas = root_datas + data['comments']
             continue
-        if url.startswith('https://www-hj.douyin.com/aweme/v1/web/comment/list/reply/?'):
+        if data_url.startswith('https://www-hj.douyin.com/aweme/v1/web/comment/list/reply/?'):
             child_datas = child_datas + data['comments']
                 
     # 去重 有重复现象(url太长和复杂)
@@ -48,7 +48,7 @@ def json_to_root_comments(f_path, out_path):
     
         root_comment = root_data_to_root_comment(root_data)
         root_comments.append(root_comment)
-    root_comments_to_html(root_comments, out_path)
+    root_comments_to_html(root_comments, out_path, url, title)
     
 def root_data_to_root_comment(data):
     comment = data_to_comment(data)

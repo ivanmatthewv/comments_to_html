@@ -27,13 +27,13 @@ def json_to_root_comments(f_path, out_path):
     root_comments_pattern = r"https://www.zhihu.com/api/v4/comment_v5/answers/(\d+)/root_comment(\?.*)?"
     child_comments_pattern = r"https://www.zhihu.com/api/v4/comment_v5/comment/(\d+)/child_comment(\?.*)?"            
         
-    for url, data in data.items():
-        if url.endswith('/config'):
+    for data_url, data in data.items():
+        if data_url.endswith('/config'):
             pass
-        if re.match(root_comments_pattern, url):
+        if re.match(root_comments_pattern, data_url):
             root_datas = root_datas + data['data']
             continue
-        if re.match(child_comments_pattern, url):
+        if re.match(child_comments_pattern, data_url):
             root_id = data['root']['id']
             if root_id in child_datas:
                 child_datas[root_id] = child_datas[root_id] + data['data']

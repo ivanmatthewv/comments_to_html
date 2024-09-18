@@ -39,11 +39,11 @@ class RootComment:
         self.score = score
 
     
-def root_comments_to_html(root_comments, out_path):
+def root_comments_to_html(root_comments, out_path, url=None, title='在线页面'):
     root_comments = sort_root_comments(root_comments)
   
     template = Template(html_template)
-    rendered_html = template.render(comments=root_comments)
+    rendered_html = template.render(comments=root_comments, url=url, title=title)
     with open(out_path, 'w') as f:
         f.write(rendered_html)
 
@@ -55,9 +55,10 @@ html_template = """
   <style>
     body {
       font-family: sans-serif;
+      color: #18191c;
     }
-    .user {
-      color: #61666d;
+    .title {
+      text-align: center;
     }
     .root-comment-container {
       margin-bottom: 36px;
@@ -68,7 +69,6 @@ html_template = """
     .comment-meta {
       margin-top: 6px;
       font-size: smaller;
-      color: #9499a0;
     }
     .child-comments-container {
     }
@@ -81,12 +81,35 @@ html_template = """
       margin-left: 20px;
       padding: 8px 0px 0px 34px;
       font-size: smaller;
+    }
+    
+    .title a {
+      color: #61666d;
+    }
+    .user {
+      color: #61666d;
+    }
+    .comment-meta {
       color: #9499a0;
+    }
+    .show-more-content {
+      color: #9499a0;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: black;
+        color: #d8d4cf;
+      }
     }
   </style>
 </head>
 <body>
 
+  {% if url != None -%}
+    <h3 class="title"><a target="_blank" href="{{ url }}">{{ title }}</a></h3>
+  {% endif -%}
+  
   <div id="root-comments"> <!-- 1 -->
     {% for root_comment in comments %}
       {% set comment = root_comment.comment %}
