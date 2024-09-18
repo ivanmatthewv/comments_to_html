@@ -55,7 +55,6 @@ html_template = """
   <style>
     body {
       font-family: sans-serif;
-      color: #18191c;
     }
     .title {
       text-align: center;
@@ -83,6 +82,9 @@ html_template = """
       font-size: smaller;
     }
     
+    body {
+      color: #18191c;
+    }
     .title a {
       color: #61666d;
     }
