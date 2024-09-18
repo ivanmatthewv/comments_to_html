@@ -261,67 +261,65 @@ html_template = """
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-          var ele_as = document.querySelectorAll('.child-comments-container');
-          ele_as.forEach(function(ele_a) {
-              var ele_bs = ele_a.querySelectorAll('.child-comment');
-              if (ele_bs.length > 3) {
-                  for (let i = 3; i < ele_bs.length; i++) {
-                      ele_bs[i].style.display = 'none';
-                  }
-                  ele_a.querySelector('.show-more-recovery').style.display = 'none';
-              }
-          });
-      });
+            var ele_as = document.querySelectorAll('.child-comments-container');
+            ele_as.forEach(function(ele_a) {
+                var ele_bs = ele_a.querySelectorAll('.child-comment');
+                if (ele_bs.length > 3) {
+                    for (let i = 3; i < ele_bs.length; i++) {
+                        ele_bs[i].style.display = 'none';
+                    }
+                    ele_a.querySelector('.show-more-recovery').style.display = 'none';
+                }
+            });
+        });
       
-      document.addEventListener('click', function(event) {
-        var el = event.target;
-        if (el.classList.contains('show-more')) {
-          show_more(el);
-          return;
-        }
-        if (el.classList.contains('show-more-recovery')) {
-          show_more_recovery(el);
-          return;
-        }
-      }, true)
-      
-      document.addEventListener('mouseover', function(event) {
-        var el = event.target;
-        if (el.classList.contains('reply-abbr')) {
-          if (el.getAttribute('title')) {
+        document.addEventListener('click', function(event) {
+          var el = event.target;
+          if (el.classList.contains('show-more')) {
+            show_more(el);
             return;
           }
-          
-          var reply_to_reply_id = el.getAttribute('reply_to_reply_id')
-          if (reply_to_reply_id) {
-            var reply_to_uid = el.getAttribute('reply_to_uid')
-            reply_to_uid = reply_to_uid ? reply_to_uid + ':' : ''
-            
-            var reply_to = ''
-            var content = `${reply_to_uid}[已删除]`
-              
-            selector = `div.child-comment[child_comment_id="${reply_to_reply_id}"]`;
-            var target_child_comment = el.parentNode.parentNode.parentNode.parentNode.querySelector(selector);
-            if (target_child_comment) {
-                var abbr_el = target_child_comment.querySelector('abbr.reply-abbr');
-                if (abbr_el) {
-                    reply_to = abbr_el.innerText
-                }
-                
-                var content_el = target_child_comment.querySelector('span.child-comment-content');
-                if (content_el) {
-                    content = content_el.innerText
-                }
+          if (el.classList.contains('show-more-recovery')) {
+            show_more_recovery(el);
+            return;
+          }
+        }, true)
+      
+        document.addEventListener('mouseover', function(event) {
+          var el = event.target;
+          if (el.classList.contains('reply-abbr')) {
+            if (el.getAttribute('title')) {
+              return;
             }
             
-            content = `${reply_to}${content}`
-            el.setAttribute('title', content)
+            var reply_to_reply_id = el.getAttribute('reply_to_reply_id')
+            if (reply_to_reply_id) {
+              var reply_to_uid = el.getAttribute('reply_to_uid')
+              reply_to_uid = reply_to_uid ? reply_to_uid + ':' : ''
+              
+              var reply_to = ''
+              var content = `${reply_to_uid}[已删除]`
+                
+              selector = `div.child-comment[child_comment_id="${reply_to_reply_id}"]`;
+              var target_child_comment = el.parentNode.parentNode.parentNode.parentNode.querySelector(selector);
+              if (target_child_comment) {
+                  var abbr_el = target_child_comment.querySelector('abbr.reply-abbr');
+                  if (abbr_el) {
+                      reply_to = abbr_el.innerText
+                  }
+                  
+                  var content_el = target_child_comment.querySelector('span.child-comment-content');
+                  if (content_el) {
+                      content = content_el.innerText
+                  }
+              }
+              
+              content = `${reply_to}${content}`
+              el.setAttribute('title', content)
+            }
+            return;
           }
-          return;
-        }
-      }, true)
-      
-      
+        }, true)
   </script>
 </body>
 </html>
