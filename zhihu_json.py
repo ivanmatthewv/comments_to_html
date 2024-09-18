@@ -1,18 +1,20 @@
 """
 知乎评论转为转为单页html
+
 依赖: https://greasyfork.org/zh-CN/scripts/491785 (保存fetch和xhr) 生成的savedResponse_<datetime>.json
+
 js修改:
 修改@match为https://www.zhihu.com/*
 修改newFunction值为("https://www.zhihu.com/api/v4/comment_v5/*");
+
 保存的数据有问题时可以把设值取值方法GM_setValue(response.url, jsonString);和keys = GM_listValues();...用全局对象如var data = {}替换
 """
 
 import json
 import re
-import operator
 
 from comments_to_html import Comment, RootComment, root_comments_to_html
-from util import timestamp_to_str, calc_root_comment_score
+from util import timestamp_to_str
 
 
 def json_to_root_comments(f_path, out_path):
@@ -54,27 +56,28 @@ def root_data_to_root_comment(data):
     child_datas = data.get('child_comments')
     if child_datas:
         child_comments = [data_to_comment(i) for i in child_datas]
-        child_comments = sorted(child_comments, key=operator.attrgetter('time'))
     else:
         child_comments = None
         
     root_comment = RootComment(id=data['id'], comment=comment, child_comments=child_comments)
-    root_comment.score = calc_root_comment_score(root_comment)
     return root_comment
 
 def data_to_comment(data):
     author = data['author']
+    
     comment = Comment(
         id=data.get('id'),
         name=author.get('name'),
         sex=gender_to_sex(author.get('gender')),
-        content=process_reply_at(data),
+        content=data.get('content'),
         time=timestamp_to_str(data.get('created_time')),
         like=int(data.get('like_count')),
         dislike=int(data.get('dislike_count')),
         location=process_ip(data),
         uid=author.get('id'),
     )
+    
+    comment = process_reply(data, comment)
     return comment
 
 # ip
@@ -87,19 +90,25 @@ def process_ip(data):
             ip = ip_tag.get('text')
     return ip
 
-# @
-def process_reply_at(data):
-    content = data.get('content')
+# reply @
+def process_reply(data, comment):
+    reply_to = None
+    reply_to_uid = None
+    
     reply_comment_id = data.get('reply_comment_id')
     reply_root_comment_id = data.get('reply_root_comment_id')
     if reply_comment_id and reply_comment_id != reply_root_comment_id and reply_comment_id != '0':
         reply_to_author = data.get('reply_to_author')
         if reply_to_author:
             reply_to = reply_to_author.get('name')
+            reply_to_uid = reply_to_author.get('id')
         else:
             reply_to = '[内容已删除]'
-        content = f'回复 @{reply_to}: {content}'
-    return content
+            
+    comment.reply_to = reply_to
+    comment.reply_to_uid = reply_to_uid
+    comment.reply_to_reply_id = data.get('reply_comment_id')
+    return comment
 
 def gender_to_sex(gender):
     if gender == 2:

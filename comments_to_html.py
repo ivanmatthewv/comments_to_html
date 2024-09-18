@@ -2,11 +2,15 @@
 将评论列表转为单页html
 依赖: Jinja2
 """
+import operator
+
 from jinja2 import Template
+
+from util import sum_list
 
 
 class Comment:
-    def __init__(self, id=None, name=None, sex=None, time=None, like=0, dislike=0, content=None, location=None, uid=None, reply_to=None):
+    def __init__(self, id=None, name=None, sex=None, time=None, like=0, dislike=0, content=None, location=None, uid=None, reply_to=None, reply_to_uid=None, reply_to_reply_id=None):
         self.id = id
         self.name = name
         self.sex = sex
@@ -16,7 +20,16 @@ class Comment:
         self.content = content
         self.location = location
         self.uid = uid
+        """
+        以下仅要回复二级评论的评论对象使用
+        reply_to: 要回复的用户名
+        reply_to_uid: 要回复的用户id
+        reply_to_reply_id: 要回复的二级评论id
+        """
         self.reply_to = reply_to
+        self.reply_to_uid = reply_to_uid
+        self.reply_to_reply_id = reply_to_reply_id
+        
 
 class RootComment:
     def __init__(self, id=None, comment=None, child_comments=None, score=None):
@@ -27,6 +40,8 @@ class RootComment:
 
     
 def root_comments_to_html(root_comments, out_path):
+    root_comments = sort_root_comments(root_comments)
+  
     template = Template(html_template)
     rendered_html = template.render(comments=root_comments)
     with open(out_path, 'w') as f:
@@ -103,8 +118,21 @@ html_template = """
               
               <div class="child-comments"> <!-- 4 -->
                   {% for child_comment in root_comment.child_comments %}
-                        <div class="child-comment">
-                                <span class="user">{{ child_comment.name }}:</span> <span>{{ child_comment.content }}</span>
+                        <div class="child-comment" child_comment_id="{{ child_comment.id }}">
+                                <span class="user">{{ child_comment.name }}:</span> 
+                                {% if child_comment.reply_to != None -%}
+                                    <span class="child-comment-reply">
+                                        <abbr class="reply-abbr" 
+                                        {% if child_comment.reply_to_reply_id != None -%}
+                                          reply_to_reply_id="{{ child_comment.reply_to_reply_id }}" 
+                                        {% endif -%}
+                                        {% if child_comment.reply_to_uid != None -%}
+                                          reply_to_uid="{{ child_comment.reply_to_uid }}" 
+                                        {% endif -%}
+                                        title="">回复 @{{ child_comment.reply_to }}:</abbr> 
+                                    </span>
+                                {% endif -%}
+                                <span class="child-comment-content">{{ child_comment.content }}</span>
                                 <div class="comment-meta">
                                     {% if child_comment.time != None -%}
                                         {{ child_comment.time }}  
@@ -233,10 +261,66 @@ html_template = """
           return;
         }
       }, true)
+      
+      document.addEventListener('mouseover', function(event) {
+        var el = event.target;
+        if (el.classList.contains('reply-abbr')) {
+          if (el.getAttribute('title')) {
+            return;
+          }
+          
+          var reply_to_reply_id = el.getAttribute('reply_to_reply_id')
+          if (reply_to_reply_id) {
+            var reply_to_uid = el.getAttribute('reply_to_uid')
+            reply_to_uid = reply_to_uid ? reply_to_uid + ':' : ''
+            
+            var reply_to = ''
+            var content = `${reply_to_uid}[已删除]`
+              
+            selector = `div.child-comment[child_comment_id="${reply_to_reply_id}"]`;
+            var target_child_comment = el.parentNode.parentNode.parentNode.parentNode.querySelector(selector);
+            if (target_child_comment) {
+                var abbr_el = target_child_comment.querySelector('abbr.reply-abbr');
+                if (abbr_el) {
+                    reply_to = abbr_el.innerText
+                }
+                
+                var content_el = target_child_comment.querySelector('span.child-comment-content');
+                if (content_el) {
+                    content = content_el.innerText
+                }
+            }
+            
+            content = `${reply_to}${content}`
+            el.setAttribute('title', content)
+          }
+          return;
+        }
+      }, true)
+      
+      
   </script>
 </body>
 </html>
 """
+
+
+def sort_root_comments(root_comments):
+    for root_comment in root_comments:
+        if root_comment.child_comments:
+            root_comment.child_comments = sorted(root_comment.child_comments, key=operator.attrgetter('time'))
+        root_comment.score = calc_root_comment_score(root_comment)
+    root_comments = sorted(root_comments, key=operator.attrgetter('comment.time'))
+    return sorted(root_comments, key=operator.attrgetter('score'), reverse=True)
+
+# 计算评论热度来决定排名, 建议保留原csv/json等数据文件, 以便在修改计算规则后重新生成html
+def calc_root_comment_score(root_comment):
+    comment = root_comment.comment
+    child_comments = root_comment.child_comments
+    return calc_score(like=comment.like, dislike=comment.dislike, child_like=sum_list(child_comments, 'like', 0), child_dislike=sum_list(child_comments, 'dislike', 0), child_cnt=(0 if not child_comments else len(child_comments)))
+
+def calc_score(like=0, dislike=0, child_cnt=0, child_like=0, child_dislike=0):
+    return like*2 + dislike*2 + child_cnt*3 + child_like*2 + child_dislike*2
 
     
 def main():

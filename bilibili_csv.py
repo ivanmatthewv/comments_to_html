@@ -4,10 +4,8 @@ bilibili评论转为转为单页html
 """
 
 import csv
-import operator
 
 from comments_to_html import Comment, RootComment, root_comments_to_html
-from util import calc_root_comment_score
 
 
 class CsvRow:
@@ -50,20 +48,17 @@ def comments_to_root_comments(comments):
             
             idx = idx + 1 + sub_cnt
             child_comments = [i.comment for i in child_comments]
-            child_comments = sorted(child_comments, key=operator.attrgetter('time'))
         else:
             child_comments = None
             idx = idx + 1
             
         root_comment = RootComment(cnt, comment, child_comments)
-        root_comment.score = calc_root_comment_score(root_comment)
         root_comments.append(root_comment)
         
         if idx >= len(comments):
             break
     
-    return sorted(root_comments, key=operator.attrgetter('score'), reverse=True)
-
+    return root_comments
 
     
 def main():
