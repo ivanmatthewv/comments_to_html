@@ -75,11 +75,22 @@ def data_to_comment(data):
         dislike=int(data.get('dislike_count')),
         location=process_ip(data),
         uid=author.get('id'),
+        author_flag=process_author_flag(data),
     )
     
     comment = process_reply(data, comment)
     return comment
 
+# author
+def process_author_flag(data):
+    author_tags = data.get('author_tag')
+    if not author_tags:
+        return False
+    for tag in author_tags:
+        if tag.get('type') == 'content_author':
+            return True
+    return False
+    
 # ip
 def process_ip(data):
     ip = None
@@ -122,7 +133,7 @@ def gender_to_sex(gender):
 def main():
     f_path = '1.json'
     out_path = 'out.html'
-    json_to_root_comments(f_path, out_path)
+    json_to_root_comments(f_path, out_path, 'https://www.zhihu.com/question/535252536/answer/2705409117', '为什么长辈小时候所受的教育比现在要粗暴许多却没有出现心理问题？')
     pass
 
 if __name__ == "__main__":

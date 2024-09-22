@@ -10,7 +10,7 @@ from util import sum_list
 
 
 class Comment:
-    def __init__(self, id=None, name=None, sex=None, time=None, like=0, dislike=0, content=None, location=None, uid=None, reply_to=None, reply_to_uid=None, reply_to_reply_id=None):
+    def __init__(self, id=None, name=None, sex=None, time=None, like=0, dislike=0, content=None, location=None, uid=None, author_flag=False, reply_to=None, reply_to_uid=None, reply_to_reply_id=None):
         self.id = id
         self.name = name
         self.sex = sex
@@ -20,6 +20,7 @@ class Comment:
         self.content = content
         self.location = location
         self.uid = uid
+        self.author_flag = author_flag
         """
         以下仅要回复二级评论的评论对象使用
         reply_to: 要回复的用户名
@@ -56,8 +57,15 @@ html_template = """
     body {
       font-family: sans-serif;
     }
+    abbr {  
+        text-decoration: none;
+    }
     .title {
       text-align: center;
+    }
+    .author-tag {
+      border: 1px solid rgb(211, 211, 211);
+      border-radius: 4px;
     }
     .root-comment-container {
       margin-bottom: 36px;
@@ -88,6 +96,9 @@ html_template = """
     .title a {
       color: #61666d;
     }
+    .author-tag {
+      color: rgb(153, 153, 153);
+    }
     .user {
       color: #61666d;
     }
@@ -116,7 +127,14 @@ html_template = """
     {% for root_comment in comments %}
       {% set comment = root_comment.comment %}
       <div class="root-comment-container"> <!-- 2 -->
-        <div class="root-comment-content"><span class="user">{{ comment.name }}:</span> <span>{{ comment.content }}</span></div>
+        <div class="root-comment-content">
+          <span class="user">{{ comment.name }}</span>
+          {% if comment.author_flag -%}
+            <span class="author-tag">owner</span>
+          {% endif -%}
+          <span class="user">: </span>
+          <span>{{ comment.content }}</span>
+        </div>
         <div class="comment-meta">
             {% if comment.time != None -%}
                 {{ comment.time }}  
@@ -144,19 +162,28 @@ html_template = """
               <div class="child-comments"> <!-- 4 -->
                   {% for child_comment in root_comment.child_comments %}
                         <div class="child-comment" child_comment_id="{{ child_comment.id }}">
-                                <span class="user">{{ child_comment.name }}:</span> 
+                                <span class="user">{{ child_comment.name }}</span> 
+                                {% if child_comment.author_flag -%}
+                                  <span class="author-tag">owner</span>
+                                {% endif -%}
                                 {% if child_comment.reply_to != None -%}
-                                    <span class="child-comment-reply">
+                                    <span class="child-comment-reply user">
                                         <abbr class="reply-abbr" 
-                                        {% if child_comment.reply_to_reply_id != None -%}
-                                          reply_to_reply_id="{{ child_comment.reply_to_reply_id }}" 
-                                        {% endif -%}
-                                        {% if child_comment.reply_to_uid != None -%}
-                                          reply_to_uid="{{ child_comment.reply_to_uid }}" 
-                                        {% endif -%}
-                                        title="">回复 @{{ child_comment.reply_to }}:</abbr> 
+                                          {% if child_comment.reply_to_reply_id != None -%}
+                                            reply_to_reply_id="{{ child_comment.reply_to_reply_id }}" 
+                                          {% endif -%}
+                                          {% if child_comment.reply_to_uid != None -%}
+                                            reply_to_uid="{{ child_comment.reply_to_uid }}" 
+                                          {% endif -%}
+                                          title="">
+                                          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                                            <path d="M10.727 7.48a.63.63 0 0 1 0 1.039l-4.299 2.88c-.399.268-.926-.028-.926-.519V5.12c0-.491.527-.787.926-.52l4.299 2.881Z"></path>
+                                          </svg>
+                                          {{ child_comment.reply_to }}
+                                        </abbr> 
                                     </span>
                                 {% endif -%}
+                                <span class="user">:&nbsp;</span>
                                 <span class="child-comment-content">{{ child_comment.content }}</span>
                                 <div class="comment-meta">
                                     {% if child_comment.time != None -%}
