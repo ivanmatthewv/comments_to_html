@@ -133,7 +133,7 @@ def gender_to_sex(gender):
 def main():
     f_path = '1.json'
     out_path = 'out.html'
-    json_to_root_comments(f_path, out_path, 'https://www.zhihu.com/question/535252536/answer/2705409117', '为什么长辈小时候所受的教育比现在要粗暴许多却没有出现心理问题？')
+    json_to_root_comments(f_path, out_path)
     pass
 
 if __name__ == "__main__":
