@@ -134,6 +134,7 @@ html_template = """
     {% for content in contents %}
       <p>{{ content }}</p>
     {% endfor %}
+    <br>
   {% endif -%}
   
   <div id="root-comments"> <!-- 1 -->
