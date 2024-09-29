@@ -48,7 +48,7 @@ def json_to_root_comments(f_path, out_path, url=None, title='在线页面'):
     
         root_comment = root_data_to_root_comment(root_data)
         root_comments.append(root_comment)
-    root_comments_to_html(root_comments, out_path, url, title)
+    root_comments_to_html(root_comments, out_path, title, url)
     
 def root_data_to_root_comment(data):
     comment = data_to_comment(data)

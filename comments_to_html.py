@@ -40,11 +40,12 @@ class RootComment:
         self.score = score
 
     
-def root_comments_to_html(root_comments, out_path, url=None, title='在线页面'):
+def root_comments_to_html(root_comments, out_path, title=None, url=None, content=None):
     root_comments = sort_root_comments(root_comments)
-  
+    contents = content.split('\n') if content else None
+    
     template = Template(html_template)
-    rendered_html = template.render(comments=root_comments, url=url, title=title)
+    rendered_html = template.render(comments=root_comments, title=title, url=url, contents=contents)
     with open(out_path, 'w') as f:
         f.write(rendered_html)
 
@@ -119,8 +120,20 @@ html_template = """
 </head>
 <body>
 
-  {% if url != None -%}
-    <h3 class="title"><a target="_blank" href="{{ url }}">{{ title }}</a></h3>
+  {% if title != None and title != ''-%}
+    <h3 class="title">
+      {% if url != None and url != '' -%}
+        <a target="_blank" href="{{ url }}">{{ title }}</a>
+      {% else -%}
+        {{ title }}
+      {% endif -%}
+    </h3>
+  {% endif -%}
+  
+  {% if contents != None -%}
+    {% for content in contents %}
+      <p>{{ content }}</p>
+    {% endfor %}
   {% endif -%}
   
   <div id="root-comments"> <!-- 1 -->

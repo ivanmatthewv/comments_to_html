@@ -17,7 +17,7 @@ from comments_to_html import Comment, RootComment, root_comments_to_html
 from util import timestamp_to_str
 
 
-def json_to_root_comments(f_path, out_path, url=None, title=None):
+def json_to_root_comments(f_path, out_path, title=None, url=None, content=None):
     with open(f_path, 'r') as f:
         data = json.load(f)
         
@@ -49,7 +49,7 @@ def json_to_root_comments(f_path, out_path, url=None, title=None):
     
         root_comment = root_data_to_root_comment(root_data)
         root_comments.append(root_comment)
-    root_comments_to_html(root_comments, out_path, url, title)
+    root_comments_to_html(root_comments, out_path, title, url, content)
     
 def root_data_to_root_comment(data):
     comment = data_to_comment(data)
@@ -133,7 +133,10 @@ def gender_to_sex(gender):
 def main():
     f_path = '1.json'
     out_path = 'out.html'
-    json_to_root_comments(f_path, out_path)
+    title = ''
+    url = ''
+    content = """"""
+    json_to_root_comments(f_path, out_path, title, url, content)
     pass
 
 if __name__ == "__main__":
