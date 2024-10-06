@@ -46,7 +46,7 @@ def root_comments_to_html(root_comments, out_path, title=None, url=None, content
     
     template = Template(html_template)
     rendered_html = template.render(comments=root_comments, title=title, url=url, contents=contents)
-    with open(out_path, 'w') as f:
+    with open(out_path, 'w', encoding='utf-8') as f:
         f.write(rendered_html)
 
 html_template = """

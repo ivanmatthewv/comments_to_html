@@ -18,7 +18,7 @@ from util import timestamp_to_str
 
 
 def json_to_root_comments(f_path, out_path, title=None, url=None, content=None):
-    with open(f_path, 'r') as f:
+    with open(f_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
         
     root_datas = []
@@ -133,10 +133,12 @@ def gender_to_sex(gender):
 def main():
     f_path = '1.json'
     out_path = 'out.html'
+    # 作者直接跟在标题后面比较方便阅读
     title = ''
     url = ''
-    content = """"""
-    json_to_root_comments(f_path, out_path, title, url, content)
+    content = """
+"""
+    json_to_root_comments(f_path, out_path, title, url, content.strip())
     pass
 
 if __name__ == "__main__":

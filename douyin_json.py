@@ -20,7 +20,7 @@ from util import timestamp_to_str, distinct_list, group_list
 
 
 def json_to_root_comments(f_path, out_path, url=None, title='在线页面'):
-    with open(f_path, 'r') as f:
+    with open(f_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
         
     root_datas = []
