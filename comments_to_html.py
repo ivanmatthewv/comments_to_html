@@ -51,8 +51,10 @@ def root_comments_to_html(root_comments, out_path, title=None, url=None, content
 
 html_template = """
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>comments</title>
   <style>
     body {
